@@ -12,6 +12,8 @@ from borrowings.serializers import (
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.select_related("book", "user").all()
 
+    http_method_names = ["get", "post", "head", "options"]
+
     def get_serializer_class(self):
         if self.action == "create":
             return BorrowingCreateSerializer
