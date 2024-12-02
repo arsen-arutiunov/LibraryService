@@ -27,3 +27,8 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                 "This book is not available for borrowing."
             )
         return attrs
+
+class ReturnBorrowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ("user", "book")

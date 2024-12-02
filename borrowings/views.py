@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingSerializer,
-    BorrowingCreateSerializer
+    BorrowingCreateSerializer,
+    ReturnBorrowingSerializer
 )
 
 
@@ -64,6 +65,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return BorrowingCreateSerializer
+        elif self.action == "return_borrowing":
+            return ReturnBorrowingSerializer
         return BorrowingSerializer
 
     def get_queryset(self):
