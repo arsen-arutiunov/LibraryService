@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing
@@ -59,6 +60,7 @@ from borrowings.serializers import (
 )
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.select_related("book", "user").all()
+    permission_classes = [IsAuthenticated]
 
     http_method_names = ["get", "post", "head", "options"]
 
@@ -70,11 +72,16 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return BorrowingSerializer
 
     def get_queryset(self):
+        user = self.request.user
         queryset = super().get_queryset()
+
+        if not user.is_staff:
+            queryset = queryset.filter(user=user)
+
         user_id = self.request.query_params.get("user_id")
         is_active = self.request.query_params.get("is_active")
 
-        if user_id is not None:
+        if user_id is not None and user.is_staff:
             queryset = queryset.filter(user__id=user_id)
 
         if is_active is not None:
