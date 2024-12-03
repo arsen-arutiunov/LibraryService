@@ -15,6 +15,7 @@ from borrowings.serializers import (
     BorrowingCreateSerializer,
     ReturnBorrowingSerializer
 )
+from helpers.telegram import send_telegram_message
 
 
 @extend_schema_view(
@@ -93,7 +94,16 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save()
+        borrowing = serializer.save()
+
+        message = (
+            f"<b>New Borrowing</b>\n"
+            f"User: {borrowing.user.email}\n"
+            f"Book: {borrowing.book.title}\n"
+            f"Date of borrowing: {borrowing.borrow_date}\n"
+            f"Expected return date: {borrowing.expected_return_date}"
+        )
+        send_telegram_message(message)
 
     @action(detail=True, methods=["post"], url_path="return")
     def return_borrowing(self, request, pk=None):
@@ -104,6 +114,16 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         borrowing.return_book()
+
+        message = (
+            f"<b>Book Returned</b>\n"
+            f"User: {borrowing.user.email}\n"
+            f"Book: {borrowing.book.title}\n"
+            f"Borrow date: {borrowing.borrow_date}\n"
+            f"Return date: {borrowing.actual_return_date}"
+        )
+        send_telegram_message(message)
+
         return Response(
             {"detail": "Borrowing successfully returned."},
             status=status.HTTP_200_OK
