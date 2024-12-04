@@ -32,7 +32,8 @@ class UserModelTests(TestCase):
             User.objects.create_user(email=None, password="password123")
 
     def test_create_user_with_duplicate_email(self):
-        """Test that creating a user with a duplicate email raises IntegrityError."""
+        """Test that creating a user with a duplicate
+        email raises IntegrityError."""
         email = "duplicateuser@example.com"
         password = "password123"
 
@@ -44,6 +45,7 @@ class UserModelTests(TestCase):
             User.objects.create_user(email=email, password="newpassword123")
 
     def test_create_user_with_empty_email_raises_value_error(self):
-        """Test that creating a user with an empty email raises a ValueError."""
+        """Test that creating a user with an empty email
+        raises a ValueError."""
         with self.assertRaises(ValueError):
             User.objects.create_user(email="", password="password123")
