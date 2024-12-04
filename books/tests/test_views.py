@@ -102,7 +102,10 @@ class BookAPITests(TestCase):
         self.client.force_authenticate(user=self.admin)
         payload = {"title": "Updated Book Title"}
 
-        response = self.client.patch(get_book_detail_url(self.book.id), payload)
+        response = self.client.patch(
+            get_book_detail_url(self.book.id),
+            payload
+        )
         self.book.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -113,7 +116,10 @@ class BookAPITests(TestCase):
         self.client.force_authenticate(user=self.user)
         payload = {"title": "Unauthorized Update"}
 
-        response = self.client.patch(get_book_detail_url(self.book.id), payload)
+        response = self.client.patch(
+            get_book_detail_url(self.book.id),
+            payload
+        )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.book.refresh_from_db()
