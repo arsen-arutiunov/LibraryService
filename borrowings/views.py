@@ -43,17 +43,17 @@ from helpers.telegram import send_telegram_message
         ],
         responses={status.HTTP_200_OK: BorrowingSerializer(many=True)},
     ),
-    retrieve = extend_schema(
+    retrieve=extend_schema(
         summary="Retrieve a borrowing by ID.",
         description="Retrieve a borrowing by ID.",
         responses={status.HTTP_200_OK: BorrowingSerializer()},
     ),
-    create = extend_schema(
+    create=extend_schema(
         summary="Create a new borrowing.",
         description="Create a new borrowing.",
         responses={status.HTTP_201_CREATED: BorrowingCreateSerializer()},
     ),
-    return_borrowing = extend_schema(
+    return_borrowing=extend_schema(
         summary="Return a book.",
         description="Return a book.",
         responses={status.HTTP_200_OK: BorrowingSerializer()},

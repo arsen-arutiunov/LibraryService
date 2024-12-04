@@ -9,6 +9,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_API_URL = (f"https://api.telegram.org/bot"
                     f"{TELEGRAM_BOT_TOKEN}/sendMessage")
 
+
 def send_telegram_message(message: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         raise ValueError("No bot token or Chat ID is configured.")
