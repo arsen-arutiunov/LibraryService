@@ -28,6 +28,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             )
         return attrs
 
+
 class ReturnBorrowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
