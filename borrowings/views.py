@@ -111,9 +111,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="return")
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
-
         user = request.user
-
         if borrowing.user != user and not user.is_staff:
             return Response(
                 {
@@ -128,6 +126,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 {"error": "This borrowing has already been returned."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         borrowing.return_book()
 
         message = (
