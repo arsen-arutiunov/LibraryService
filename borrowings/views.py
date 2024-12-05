@@ -51,12 +51,12 @@ from helpers.telegram import send_telegram_message
     create=extend_schema(
         summary="Create a new borrowing.",
         description="Create a new borrowing.",
-        responses={status.HTTP_201_CREATED: BorrowingCreateSerializer()},
+        responses={status.HTTP_201_CREATED: BorrowingCreateSerializer},
     ),
     return_borrowing=extend_schema(
         summary="Return a book.",
         description="Return a book.",
-        responses={status.HTTP_200_OK: BorrowingSerializer()},
+        responses={status.HTTP_200_OK: ReturnBorrowingSerializer},
     ),
 )
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -94,6 +94,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
+        user = self.request.user
+        if not user.is_staff:
+            serializer.validated_data["user"] = user
         borrowing = serializer.save()
 
         message = (
@@ -108,6 +111,18 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="return")
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
+
+        user = request.user
+
+        if borrowing.user != user and not user.is_staff:
+            return Response(
+                {
+                    "error": "You can only return books borrowed by yourself,"
+                             " or an admin can return for any user."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if borrowing.actual_return_date:
             return Response(
                 {"error": "This borrowing has already been returned."},

@@ -1,4 +1,7 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
+from books.models import Book
 from borrowings.models import Borrowing
 
 
@@ -16,20 +19,71 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.none(),
+        required=False
+    )
+
     class Meta:
         model = Borrowing
         fields = ("expected_return_date", "book", "user")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = self.context["request"].user
+        if user.is_staff:
+            self.fields["user"].queryset = get_user_model().objects.all()
+        else:
+            self.fields["user"].queryset = get_user_model().objects.filter(
+                id=user.id
+            )
+
     def validate(self, attrs):
+        user = self.context["request"].user
+        if not user.is_staff:
+            attrs["user"] = user
+
         book = attrs.get("book")
         if book.inventory <= 0:
             raise serializers.ValidationError(
                 "This book is not available for borrowing."
             )
+
         return attrs
 
 
 class ReturnBorrowingSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.none(),
+        required=False
+    )
+
     class Meta:
         model = Borrowing
-        fields = ("user", "book")
+        fields = ("book", "user")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = self.context["request"].user
+        if user.is_staff:
+            self.fields["user"].queryset = get_user_model().objects.all()
+        else:
+            self.fields["user"].queryset = get_user_model().objects.filter(
+                id=user.id
+            )
+
+    def validate(self, attrs):
+        borrowing = self.instance
+        user = self.context["request"].user
+
+        if borrowing.user != user and not user.is_staff:
+            raise serializers.ValidationError(
+                "You can only return books borrowed by yourself, "
+                "or an admin can return for any user."
+            )
+
+        if borrowing.actual_return_date:
+            raise serializers.ValidationError(
+                "This borrowing has already been returned.")
+
+        return attrs
