@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import generics, permissions
+
 from .models import Payment
 from .serializers import PaymentSerializer
 
@@ -22,6 +23,7 @@ class PaymentDetailView(generics.RetrieveAPIView):
 
 def success_view(request):
     return JsonResponse({"message": "Payment successful!"})
+
 
 def cancel_view(request):
     return JsonResponse({"message": "Payment was paused or canceled."})
