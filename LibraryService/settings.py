@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "books",
     "users",
     "borrowings",
+    "payments",
 ]
 
 MIDDLEWARE = [
@@ -152,8 +153,8 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "users.User"
 
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 CELERY_TIMEZONE = "Europe/Kiev"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
@@ -166,3 +167,6 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="30", hour="16"),
     },
 }
+
+STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
+STRIPE_API_PUBLISHABLE_KEY = os.getenv("STRIPE_API_PUBLISHABLE_KEY")
