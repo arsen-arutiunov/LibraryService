@@ -1,3 +1,5 @@
+from datetime import date
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     extend_schema_view,
@@ -16,6 +18,7 @@ from borrowings.serializers import (
     ReturnBorrowingSerializer
 )
 from helpers.telegram import send_telegram_message
+from payments.utils import create_stripe_payment_session
 
 
 @extend_schema_view(
@@ -99,6 +102,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             serializer.validated_data["user"] = user
         borrowing = serializer.save()
 
+        create_stripe_payment_session(borrowing, self.request)
+
         message = (
             f"<b>New Borrowing</b>\n"
             f"User: {borrowing.user.email}\n"
@@ -112,6 +117,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
         user = request.user
+
         if borrowing.user != user and not user.is_staff:
             return Response(
                 {
@@ -127,7 +133,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        borrowing.return_book()
+        borrowing.return_borrowing_with_fine(actual_return_date=date.today())
 
         message = (
             f"<b>Book Returned</b>\n"
