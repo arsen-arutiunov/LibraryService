@@ -1,6 +1,5 @@
 from django.db import models
 
-from borrowings.models import Borrowing
 from users.models import User
 
 
@@ -16,6 +15,7 @@ class Payment(models.Model):
         on_delete=models.CASCADE,
         related_name="payments"
     )
+    from borrowings.models import Borrowing
     borrowing = models.ForeignKey(
         Borrowing,
         on_delete=models.CASCADE,
@@ -26,6 +26,8 @@ class Payment(models.Model):
         max_length=10,
         choices=STATUS_CHOICES,
         default="Pending")
+    session_url = models.URLField(max_length=500, blank=True, null=True)
+    session_id = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
