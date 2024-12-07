@@ -6,6 +6,12 @@ from borrowings.models import Borrowing
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
+    payments = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+        source="payment_set"
+    )
+
     class Meta:
         model = Borrowing
         fields = (
@@ -15,6 +21,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "actual_return_date",
             "book",
             "user",
+            "payments",
         )
 
 
